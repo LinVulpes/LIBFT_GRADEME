@@ -173,9 +173,15 @@ init_exam() {
     echo ""
     
     # Show quick reference
-    source "$(dirname "$0")/quick_reference.sh"
-    show_quick_reference
-    read -p ""
+    SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+    if [ -f "$SCRIPT_DIR/quick_reference.sh" ]; then
+        source "$SCRIPT_DIR/quick_reference.sh"
+        show_quick_reference
+        read -p ""
+    else
+        echo -e "${YELLOW}Quick reference not found, continuing...${NC}"
+        sleep 2
+    fi
 }
 
 # ============================================================================
@@ -208,11 +214,26 @@ create_subject() {
     local question=$1
     local subject_file="$SUBJECT_DIR/${question}.txt"
     
-    # Source the subjects script
-    source "$(dirname "$0")/subjects.sh"
+    # Get script directory
+    SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
     
-    # Get the subject content
-    get_subject "$question" > "$subject_file"
+    # Source the subjects script if it exists
+    if [ -f "$SCRIPT_DIR/subjects.sh" ]; then
+        source "$SCRIPT_DIR/subjects.sh"
+        get_subject "$question" > "$subject_file"
+    else
+        # Fallback: create basic subject
+        cat > "$subject_file" << EOF
+Assignment name  : $question
+Expected files   : ${question}.c
+Allowed functions: (check man page)
+--------------------------------------------------------------------------------
+
+Write the function $question.
+
+Your function must follow the prototype shown in the exam documentation.
+EOF
+    fi
     
     echo "$subject_file"
 }
@@ -361,9 +382,14 @@ start_level() {
                 return
                 ;;
             help)
-                source "$(dirname "$0")/quick_reference.sh"
-                show_quick_reference
-                read -p ""
+                SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+                if [ -f "$SCRIPT_DIR/quick_reference.sh" ]; then
+                    source "$SCRIPT_DIR/quick_reference.sh"
+                    show_quick_reference
+                    read -p ""
+                else
+                    show_commands
+                fi
                 ;;
             *)
                 echo -e "${RED}Unknown command. Type 'status', 'grademe', 'finish', or 'help'${NC}"

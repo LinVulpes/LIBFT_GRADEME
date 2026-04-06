@@ -15,13 +15,43 @@ echo -e "${BLUE}║     42 EXAM RANK 02 PRACTICE - SETUP                       �
 echo -e "${BLUE}╚════════════════════════════════════════════════════════════╝${NC}"
 echo ""
 
-# Make scripts executable
-echo -e "${YELLOW}Setting up exam practice environment...${NC}"
-chmod +x exam_simulator.sh
-chmod +x exam_grader.sh
+# Get script directory
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+cd "$SCRIPT_DIR"
 
-echo -e "${GREEN}✓${NC} Scripts are now executable"
+echo -e "${YELLOW}Setting up exam practice environment...${NC}"
 echo ""
+
+# Check if required files exist
+REQUIRED_FILES=("exam_simulator.sh" "exam_grader.sh" "subjects.sh" "quick_reference.sh")
+MISSING_FILES=()
+
+for file in "${REQUIRED_FILES[@]}"; do
+    if [ -f "$file" ]; then
+        echo -e "${GREEN}✓${NC} Found: $file"
+        chmod +x "$file"
+    else
+        echo -e "${RED}✗${NC} Missing: $file"
+        MISSING_FILES+=("$file")
+    fi
+done
+
+echo ""
+
+if [ ${#MISSING_FILES[@]} -eq 0 ]; then
+    echo -e "${GREEN}✓${NC} All required files present"
+    echo -e "${GREEN}✓${NC} Scripts are now executable"
+    echo ""
+else
+    echo -e "${RED}⚠ Warning: Missing ${#MISSING_FILES[@]} file(s)${NC}"
+    echo -e "${YELLOW}Missing files:${NC}"
+    for file in "${MISSING_FILES[@]}"; do
+        echo -e "  - $file"
+    done
+    echo ""
+    echo -e "${YELLOW}Please make sure all files are in the same directory.${NC}"
+    echo ""
+fi
 
 # Create alias suggestion
 echo -e "${CYAN}Setup complete!${NC}"
